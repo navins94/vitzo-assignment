@@ -106,9 +106,11 @@ function ListUsers() {
 			{data.length > 0 ? (
 				<Row style={{ marginTop: '2rem' }}>
 					<Table data={data} deleteConfirm={deleteConfirm} />
-					<Pagination style={{ justifyContent: 'center' }}>
-						{renderPagination(activePage, total)}
-					</Pagination>
+					{total > 20 && (
+						<Pagination style={{ justifyContent: 'center' }}>
+							{renderPagination(activePage, total)}
+						</Pagination>
+					)}
 				</Row>
 			) : (
 				<Row className="mt-4">

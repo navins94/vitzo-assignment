@@ -4,7 +4,7 @@ class Database
 
     private $host  = 'localhost';
     private $user  = 'root';
-    private $password   = "passcode";
+    private $password   = "";
     private $database  = "vitzo_test";
 
     public function getConnection()
