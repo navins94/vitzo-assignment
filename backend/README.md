@@ -4,6 +4,8 @@ This is a simple Core PHP Rest API.
 
 This project created as an assignment for vitzo
 
+Import the users.sql file, change the params in the config/Database.php file to your own
+
 ### Installing - Windows/Ubuntu
 
 ```sh
