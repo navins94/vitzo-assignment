@@ -65,7 +65,7 @@ const AddEditUser = () => {
 	const updateUser = (data) => {
 		axios
 			.post('http://localhost:9000/updateUser.php', {
-				dob: moment(data.dob).format('DD-MM-YYYY'),
+				dob: moment(new Date(data.dob)).format('YYYY-MM-DD'),
 				firstName: data.firstName,
 				lastName: data.lastName,
 				id: user.id,
@@ -83,7 +83,7 @@ const AddEditUser = () => {
 	};
 
 	const selectDateHandler = (d) => {
-		setDate(moment(d).format('DD-MM-YYYY'));
+		setDate(moment(d).format('YYYY-MM-DD'));
 		setValue('dob', d, { shouldValidate: true });
 	};
 
@@ -184,7 +184,7 @@ const AddEditUser = () => {
 						)}
 						<div className="button-group">
 							<Button variant="primary" type="submit">
-								{!isAddMode ? 'Edit' : 'Add'}
+								{!isAddMode ? 'Update' : 'Add'}
 							</Button>
 							{!isAddMode && (
 								<Button

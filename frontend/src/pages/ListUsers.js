@@ -8,6 +8,7 @@ import Col from 'react-bootstrap/Col';
 import { generateSearchTerm } from '../utils/index';
 import Pagination from 'react-bootstrap/Pagination';
 import Button from 'react-bootstrap/esm/Button';
+import Alert from 'react-bootstrap/Alert';
 
 function useQuery() {
 	return new URLSearchParams(useLocation().search);
@@ -28,9 +29,14 @@ function ListUsers() {
 		axios
 			.get(`http://localhost:9000/getUsers.php${term}`)
 			.then((response) => {
-				setData(response.data.data);
-				setTotal(response.data.total);
 				setLoading(false);
+				if (response.data.success !== 0) {
+					setData(response.data.data);
+					setTotal(response.data.total);
+				} else {
+					setData([]);
+					setTotal(0);
+				}
 			})
 			.catch((error) => {
 				setLoading(false);
@@ -97,12 +103,20 @@ function ListUsers() {
 					</Button>
 				</Col>
 			</Row>
-			<Row style={{ marginTop: '2rem' }}>
-				<Table data={data} deleteConfirm={deleteConfirm} />
-				<Pagination style={{ justifyContent: 'center' }}>
-					{renderPagination(activePage, total)}
-				</Pagination>
-			</Row>
+			{data.length > 0 ? (
+				<Row style={{ marginTop: '2rem' }}>
+					<Table data={data} deleteConfirm={deleteConfirm} />
+					<Pagination style={{ justifyContent: 'center' }}>
+						{renderPagination(activePage, total)}
+					</Pagination>
+				</Row>
+			) : (
+				<Row className="mt-4">
+					<Col>
+						<Alert variant="warning">No data to show</Alert>
+					</Col>
+				</Row>
+			)}
 		</Container>
 	);
 }
