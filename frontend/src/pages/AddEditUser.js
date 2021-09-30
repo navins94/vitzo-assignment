@@ -48,7 +48,11 @@ const AddEditUser = () => {
 
 	const createUser = (data) => {
 		axios
-			.post('http://localhost:9000/addUser.php', data)
+			.post('http://localhost:9000/addUser.php', {
+				dob: moment(new Date(data.dob)).format('YYYY-MM-DD'),
+				firstName: data.firstName,
+				lastName: data.lastName,
+			})
 			.then((response) => {
 				if (response.data.success === 1) {
 					setMessage(response.data.msg);
