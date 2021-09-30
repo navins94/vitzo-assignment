@@ -2,18 +2,20 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
+import moment from 'moment';
 
-function TableComponent() {
+function TableComponent(props) {
 	const history = useHistory();
 
-	const editHandler = (id) => {
+	const editHandler = (user) => {
 		history.push({
 			pathname: `/edit-user/1`,
 			state: {
 				user: {
-					firstName: 'Navin',
-					lastName: 'Shingote',
-					dob: new Date(),
+					firstName: user.first_name,
+					lastName: user.last_name,
+					dob: moment(user.dob, 'YYYY-MM-DD').toDate(),
+					id: user.id,
 				},
 			},
 		});
@@ -27,51 +29,34 @@ function TableComponent() {
 						<th>Id</th>
 						<th>First Name</th>
 						<th>Last Name</th>
-						<th>Age</th>
+						<th>Date of Birth</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>1</td>
-						<td>Mark</td>
-						<td>Otto</td>
-						<td>20-07-1995</td>
-						<td>
-							<Button
-								onClick={() => editHandler()}
-								variant="warning"
-								style={{ marginRight: 20 }}
-							>
-								Edit
-							</Button>
-							<Button variant="danger">Del</Button>
-						</td>
-					</tr>
-					<tr>
-						<td>2</td>
-						<td>Jacob</td>
-						<td>Thornton</td>
-						<td>20-07-1991</td>
-						<td>
-							<Button variant="warning" style={{ marginRight: 20 }}>
-								Edit
-							</Button>
-							<Button variant="danger">Del</Button>
-						</td>
-					</tr>
-					<tr>
-						<td>3</td>
-						<td>Larry the Bird</td>
-						<td>@twitter</td>
-						<td>20-07-1992</td>
-						<td>
-							<Button variant="warning" style={{ marginRight: 20 }}>
-								Edit
-							</Button>
-							<Button variant="danger">Del</Button>
-						</td>
-					</tr>
+					{props.data.map((item) => (
+						<tr key={item.id}>
+							<td>{item.id}</td>
+							<td>{item.first_name}</td>
+							<td>{item.last_name}</td>
+							<td>{item.dob}</td>
+							<td>
+								<Button
+									onClick={() => editHandler(item)}
+									variant="warning"
+									style={{ marginRight: 20 }}
+								>
+									Edit
+								</Button>
+								<Button
+									onClick={() => props.deleteConfirm(item.id)}
+									variant="danger"
+								>
+									Del
+								</Button>
+							</td>
+						</tr>
+					))}
 				</tbody>
 			</Table>
 		</div>

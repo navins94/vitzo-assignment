@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -9,6 +9,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import Col from 'react-bootstrap/esm/Col';
 import DatePicker from 'react-datepicker';
+import axios from 'axios';
+import moment from 'moment';
+import Alert from 'react-bootstrap/Alert';
 
 const AddEditUser = () => {
 	const { state } = useLocation();
@@ -18,6 +21,8 @@ const AddEditUser = () => {
 	const history = useHistory();
 
 	const [startDate, setDate] = React.useState('');
+	const [message, setMessage] = React.useState('');
+	const [error, setError] = React.useState('');
 
 	const validationSchema = Yup.object().shape({
 		firstName: Yup.string().required('First name is required'),
@@ -38,12 +43,47 @@ const AddEditUser = () => {
 	const { errors } = formState;
 
 	const onSubmit = (data) => {
-		console.log(JSON.stringify(data, null, 2));
-		reset();
+		return isAddMode ? createUser(data) : updateUser(data);
+	};
+
+	const createUser = (data) => {
+		axios
+			.post('http://localhost:9000/addUser.php', data)
+			.then((response) => {
+				if (response.data.success === 1) {
+					setMessage(response.data.msg);
+					reset();
+				} else {
+					setError(response.data.msg);
+				}
+			})
+			.catch((error) => {
+				console.error('There was an error!', error);
+			});
+	};
+
+	const updateUser = (data) => {
+		axios
+			.post('http://localhost:9000/updateUser.php', {
+				dob: moment(data.dob).format('DD-MM-YYYY'),
+				firstName: data.firstName,
+				lastName: data.lastName,
+				id: user.id,
+			})
+			.then((response) => {
+				if (response.data.success === 1) {
+					setMessage(response.data.msg);
+				} else {
+					setError(response.data.msg);
+				}
+			})
+			.catch((error) => {
+				console.error('There was an error!', error);
+			});
 	};
 
 	const selectDateHandler = (d) => {
-		setDate(d);
+		setDate(moment(d).format('DD-MM-YYYY'));
 		setValue('dob', d, { shouldValidate: true });
 	};
 
@@ -53,11 +93,40 @@ const AddEditUser = () => {
 		reset();
 	};
 
+	useEffect(() => {
+		let timeout;
+		timeout = setTimeout(() => {
+			setMessage('');
+			setError('');
+		}, 5000);
+
+		return () => {
+			clearTimeout(timeout);
+		};
+	}, [message, error]);
+
+	const removeUser = (id) => {
+		axios
+			.post('http://localhost:9000/deleteUser.php', { id: id })
+			.then((response) => {
+				history.push('/');
+			})
+			.catch((error) => {
+				console.error('There was an error!', error);
+			});
+	};
+
+	const deleteConfirm = (id) => {
+		if (window.confirm('Are you sure?')) {
+			removeUser(id);
+		}
+	};
+
 	return (
 		<Container className="mt-5">
 			<Row>
 				<Col className="mb-4" lg={12}>
-					<h1>Add User</h1>
+					<h1>{!isAddMode ? 'Edit User' : 'Add User'}</h1>
 				</Col>
 				<Col lg={12}>
 					<Form onSubmit={handleSubmit(onSubmit)} className="user-form">
@@ -95,10 +164,12 @@ const AddEditUser = () => {
 								name="dob"
 								render={({ field }) => (
 									<DatePicker
+										showYearDropdown
 										placeholderText="Select date"
 										onChange={selectDateHandler}
 										selected={field.value}
 										className={`form-control ${errors.dob ? 'is-invalid' : ''}`}
+										dateFormat="yyyy/MM/dd"
 									/>
 								)}
 							/>
@@ -106,10 +177,24 @@ const AddEditUser = () => {
 								{errors.dob?.message}
 							</Form.Control.Feedback>
 						</Form.Group>
+						{message && (
+							<div>
+								<Alert variant="success">{message}</Alert>
+							</div>
+						)}
 						<div className="button-group">
 							<Button variant="primary" type="submit">
-								Submit
+								{!isAddMode ? 'Edit' : 'Add'}
 							</Button>
+							{!isAddMode && (
+								<Button
+									variant="danger"
+									type="submit"
+									onClick={() => deleteConfirm(user.id)}
+								>
+									Delete
+								</Button>
+							)}
 							<Button variant="secondary" type="submit" onClick={cancelHandler}>
 								Cancel
 							</Button>
