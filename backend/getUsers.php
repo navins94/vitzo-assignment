@@ -13,16 +13,13 @@ $conn = $database->getConnection();
 
 $num_rec_per_page = 20;
 
-
 if (isset($_GET["page"])) {
-  $page = $_GET["page"];
+    $page = $_GET["page"];
 } else {
-  $page = 1;
+    $page = 1;
 };
 
-
 $start_from = ($page - 1) * $num_rec_per_page;
-
 
 $total = "SELECT * FROM users";
 $query = "SELECT * FROM users Order By id asc LIMIT $start_from, $num_rec_per_page";
@@ -30,21 +27,14 @@ $query = "SELECT * FROM users Order By id asc LIMIT $start_from, $num_rec_per_pa
 
 $select = mysqli_query($conn, $query);
 
-
-$data = array();
-while ($row = mysqli_fetch_array($select, MYSQLI_ASSOC)) {
-
-  $data[] = $row;
+if ($select->num_rows > 0) {
+    while ($row = mysqli_fetch_array($select, MYSQLI_ASSOC)) {
+        $data[] = $row;
+    }
+    $respose['data'] = $data;
+    $result = mysqli_query($conn, $total);
+    $respose['total'] = mysqli_num_rows($result);
+    echo json_encode($respose);
+} else {
+    echo json_encode(["success" => 0, "msg" => "No item found."]);
 }
-
-
-$respose['data'] = $data;
-
-
-$result = mysqli_query($conn, $total);
-
-
-$respose['total'] = mysqli_num_rows($result);
-
-
-echo json_encode($respose);

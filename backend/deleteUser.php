@@ -11,14 +11,18 @@ $database = new Database();
 $conn = $database->getConnection();
 
 $data = json_decode(file_get_contents("php://input"));
+
 if (isset($data->id) && is_numeric($data->id)) {
-  $delID = $data->id;
-  $deleteUser = mysqli_query($conn, "DELETE FROM `users` WHERE `id`='$delID'");
-  if ($deleteUser) {
-    echo json_encode(["success" => 1, "msg" => "User Deleted Successfully"]);
-  } else {
-    echo json_encode(["success" => 0, "msg" => "User Not Found!"]);
-  }
+
+    $delID = $data->id;
+
+    $deleteUser = mysqli_query($conn, "DELETE FROM `users` WHERE `id`='$delID'");
+
+    if ($deleteUser) {
+        echo json_encode(["success" => 1, "msg" => "User Deleted Successfully"]);
+    } else {
+        echo json_encode(["success" => 0, "msg" => "User Not Found!"]);
+    }
 } else {
-  echo json_encode(["success" => 0, "msg" => "User Not Found!"]);
+    echo json_encode(["success" => 0, "msg" => "User Not Found!"]);
 }
